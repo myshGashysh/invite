@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Для тебя 💌</title>
+<style>
+:root{--bg1:#ffe3ec;--bg2:#e6deff;--bg3:#d9f4ea;--card:#fffafc;--ink:#5a4470;--soft:#8d78a3;--a:#ff8fb1;--a2:#b8a2ff;--ok:#8fdcb8;--line:#f3d3e2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#3a2438;--bg2:#2c2748;--bg3:#233a38;--card:#40304f;--ink:#fbe9f2;--soft:#d9c3e6;--line:#5b4670;color-scheme:dark}}
+:root[data-theme="dark"]{--bg1:#3a2438;--bg2:#2c2748;--bg3:#233a38;--card:#40304f;--ink:#fbe9f2;--soft:#d9c3e6;--line:#5b4670;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Nunito","Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:linear-gradient(135deg,var(--bg1),var(--bg2) 55%,var(--bg3));display:flex;align-items:center;justify-content:center;padding:16px;overflow:hidden}
+.bg{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.bg span{position:absolute;bottom:-40px;opacity:.55;animation:up linear infinite}
+@keyframes up{to{transform:translateY(-115vh) rotate(25deg)}}
+.card{position:relative;z-index:1;width:100%;max-width:440px;background:var(--card);border-radius:32px;padding:34px 26px 28px;text-align:center;box-shadow:0 18px 50px rgba(184,130,190,.28);border:2px solid var(--line);animation:pop .5s cubic-bezier(.2,1.3,.4,1)}
+@keyframes pop{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
+.emo{font-size:76px;line-height:1.1;animation:fl 3s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-8px) rotate(-3deg)}}
+h1{font-size:34px;margin:14px 0 4px}
+p{font-size:20px;line-height:1.4;margin:14px 0 6px;font-weight:600}
+.sub{font-size:14px;color:var(--soft);font-weight:700;letter-spacing:.04em}
+.btns{display:flex;flex-direction:column;gap:12px;margin-top:24px}
+button{font:inherit;font-weight:800;font-size:17px;border:0;border-radius:999px;padding:15px 22px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--a),#ffb3c8);box-shadow:0 6px 16px rgba(255,143,177,.4);transition:transform .15s}
+button:hover{transform:scale(1.03)}button:active{transform:scale(.97)}
+button.alt{background:linear-gradient(135deg,var(--a2),#cdbfff);box-shadow:0 6px 16px rgba(184,162,255,.4)}
+button.ok{background:linear-gradient(135deg,var(--ok),#b6ecd3);color:#2f5a49;box-shadow:0 6px 16px rgba(143,220,184,.45)}
+textarea{width:100%;margin-top:18px;border-radius:20px;border:2px solid var(--line);padding:14px;font:inherit;font-size:17px;color:var(--ink);background:transparent;resize:none;min-height:96px}
+textarea:focus{outline:none;border-color:var(--a)}
+.dots{margin-top:22px;font-size:13px;color:var(--soft)}
+.note{font-size:14px;color:var(--soft);margin-top:14px;font-weight:700}
+.res{margin-top:18px;display:flex;flex-direction:column;gap:10px}.res textarea{margin-top:4px;min-height:110px;font-size:15px}.lnk{display:block;text-decoration:none;font-weight:800;font-size:17px;border-radius:999px;padding:14px 22px;color:#fff;background:linear-gradient(135deg,var(--a),#ffb3c8)}.lnk.alt{background:linear-gradient(135deg,var(--a2),#cdbfff)}.lnk.ok{background:linear-gradient(135deg,var(--ok),#b6ecd3);color:#2f5a49}
+.rep{text-align:left;margin-top:18px;display:flex;flex-direction:column;gap:12px}.row{border:2px solid var(--line);border-radius:18px;padding:12px 14px}.q{font-size:14px;color:var(--soft);font-weight:700}.a{font-size:18px;font-weight:800;margin-top:4px}
+.pop{position:fixed;z-index:5;font-size:28px;pointer-events:none;animation:burst 1.4s ease-out forwards}
+@keyframes burst{to{transform:translate(var(--x),var(--y)) scale(1.4);opacity:0}}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<main class="card" id="card"></main>
+<script>
+var S={
+hi:{e:'🧸',h:'Приветик!',next:'compl',nb:'Открыть 💌'},
+compl:{e:'💌',p:'Если ты открыла эту открытку, то знай, что ты самая очаровательная и милая на свете! 🌸',next:'invite'},
+invite:{e:'🌷',p:'Приглашаю тебя на свидание в эти выходные :)',ch:[['Пойдём! 💖','idol'],['Давай в другой раз :)','later','alt']]},
+idol:{e:'🍽️✨',p:'Пойдём в Idol! Стильно и атмосферно — идеально, чтобы обсудить что-то интересное',sub:'📍 Красноярск',ch:[['Мне нравится) 😍','table'],['Есть идея получше ;3','idea','alt']]},
+table:{e:'🕕🥂',p:'Супер! Столик в субботу в 18:00 на двоих?',ch:[['✅','done','ok'],['Мне было бы лучше в другой день/время?','other','alt']]},
+done:{e:'🥰',p:'Считай, что уже все сделано!',end:1,party:1},
+other:{e:'😇',p:'Скажи, пожалуйста, как тебе будет удобнее 😇',input:'Напиши день и время…',end:1},
+idea:{e:'👂',p:'Я весь внимание ✨',input:'Твоя идея…',end:1},
+later:{e:'☁️🌼',p:'Все окей :) Если ты хочешь перенести, выбери вариант',ch:[['На следующей неделе','fin'],['Через неделю','fin','alt']]},
+fin:{e:'🌸',p:'Хорошо, принято! Жду тебя 🌸',end:1}
+};
+/* === НАСТРОЙКА GOOGLE ФОРМЫ (см. инструкцию) === */
+var FORM_ID='',ENTRY_CHOICE='',ENTRY_COMMENT='';
+var picks=[],BASE=/claude|anthropic/.test(location.hostname)?'https://claude.ai/artifact/NNJTATAnbcbfNmd6UeauGj':location.href.split('#')[0],path=[],cur='hi',rid=Math.random().toString(36).slice(2,10),dbh=null,sent=false;
+var card=document.getElementById('card');
+(async function(){try{if(window.claude&&claude.use){dbh=await claude.use('db')}}catch(e){}})();
+function saveDb(final,extra){try{if(!dbh)return;var r=dbh.doc('results/'+rid).set({path:path,final:!!final,extra:extra||'',ts:Date.now()});if(r&&r.catch)r.catch(function(){})}catch(e){}}
+function summary(extra){return '💌 Катя прошла открытку!\n'+path.join(' → ')+(extra?'\n✍️ Её ответ: '+extra:'')}
+function el(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x)n.textContent=x;return n}
+function go(id,label,i){if(label){path.push(label);if(i!==undefined)picks.push(i);saveDb(false)}cur=id;show()}
+function burst(){var em=['💖','🌸','✨','🥰','🌷'];for(var i=0;i<18;i++){var s=el('span','pop',em[i%5]);s.style.left='50%';s.style.top='45%';s.style.setProperty('--x',(Math.random()*500-250)+'px');s.style.setProperty('--y',(Math.random()*-420-40)+'px');document.body.appendChild(s);setTimeout(function(x){x.remove()}.bind(null,s),1500)}}
+function show(){
+var n=S[cur];card.style.animation='none';card.offsetHeight;card.style.animation='';card.innerHTML='';
+card.appendChild(el('div','emo',n.e));
+if(n.h)card.appendChild(el('h1','',n.h));
+if(n.p)card.appendChild(el('p','',n.p));
+if(n.sub)card.appendChild(el('div','sub',n.sub));
+var b=el('div','btns');
+if(n.next){var x=el('button','',n.nb||'Дальше ✨');x.onclick=function(){go(n.next)};b.appendChild(x)}
+if(n.ch)n.ch.forEach(function(c,i){var x=el('button',c[2]||'',c[0]);x.onclick=function(){go(c[1],c[0],i)};b.appendChild(x)});
+if(n.input){var t=document.createElement('textarea');t.placeholder=n.input;t.id='ans';card.appendChild(t)}
+if(n.end && !n.party){
+var x=el('button','','Отправить ответ 💌');
+x.onclick=function(){var t=document.getElementById('ans');var v=t?t.value.trim():'';if(t&&!v){t.focus();return}send(v,x)};
+b.appendChild(x);
+}
+card.appendChild(b);
+if(n.party){saveDb(true,'');showShare('');burst()}
+var vis=Object.keys(path).length;
+
+}
+function showShare(extra){
+var hex='';try{new TextEncoder().encode(extra||'').forEach(function(b){hex+=('0'+b.toString(16)).slice(-2)})}catch(e){}
+var url=BASE+'#r'+picks.join('')+'x'+hex,txt=url,old=document.getElementById('res');if(old)old.remove();
+var box=el('div','res');box.id='res';
+function link(l,h,c){var a=el('a','lnk '+(c||''),l);a.href=h;a.target='_blank';a.rel='noopener';box.appendChild(a)}
+link('Telegram ✈️','https://t.me/share/url?url='+encodeURIComponent(url));
+var ta=document.createElement('textarea');ta.readOnly=true;ta.value=txt;ta.style.cssText='position:fixed;opacity:0;left:-999px';box.appendChild(ta);
+var cp=el('button','alt','Скопировать');cp.onclick=function(){ta.select();ta.setSelectionRange(0,99999);var ok=false;try{ok=document.execCommand('copy')}catch(e){}if(ok){cp.textContent='Скопировано ✅'}else{ta.style.cssText='';cp.textContent='Выдели текст и скопируй';ta.focus();ta.select()}};box.appendChild(cp);
+card.appendChild(box);
+}
+function send(extra,btn){
+saveDb(true,extra);
+if(FORM_ID&&ENTRY_CHOICE){var fd=new FormData();fd.append(ENTRY_CHOICE,path.join(' → '));if(ENTRY_COMMENT)fd.append(ENTRY_COMMENT,extra||'');try{fetch('https://docs.google.com/forms/d/e/'+FORM_ID+'/formResponse',{method:'POST',mode:'no-cors',body:fd}).catch(function(){})}catch(e){}btn.remove();burst();card.appendChild(el('div','note','Ответ отправлен 💌'));return}
+showShare(extra);
+btn.remove();burst();
+}
+var bg=document.getElementById('bg'),h=['💗','🌸','✨','🌷','☁️','💞'];
+for(var i=0;i<16;i++){var s=document.createElement('span');s.textContent=h[i%h.length];s.style.left=(Math.random()*96)+'%';s.style.fontSize=(16+Math.random()*22)+'px';s.style.animationDuration=(10+Math.random()*12)+'s';s.style.animationDelay=(-Math.random()*20)+'s';bg.appendChild(s)}
+function report(){
+var m=/^#r(\d*)x([0-9a-f]*)$/.exec(location.hash);if(!m)return false;
+var t='';try{var by=[];for(var i=0;i<m[2].length;i+=2)by.push(parseInt(m[2].substr(i,2),16));t=new TextDecoder().decode(new Uint8Array(by))}catch(e){}
+card.innerHTML='';card.appendChild(el('div','emo','📋'));card.appendChild(el('h1','','Ответы'));
+var list=el('div','rep'),id='hi',k=0;
+for(var g=0;g<20&&id;g++){var n=S[id],row=el('div','row');
+if(n.ch){var c=n.ch[+m[1].charAt(k++)];if(!c){row.appendChild(el('div','q','Дальше она не прошла'));list.appendChild(row);break}row.appendChild(el('div','q',n.p));row.appendChild(el('div','a','→ '+c[0]));list.appendChild(row);id=c[1]}
+else if(n.next){id=n.next}
+else{row.appendChild(el('div','q','Финал'));row.appendChild(el('div','a',n.p));list.appendChild(row);id=null}}
+if(t){var r=el('div','row');r.appendChild(el('div','q','Её ответ'));r.appendChild(el('div','a','✍️ '+t));list.appendChild(r)}
+card.appendChild(list);return true}
+if(!report())show();
+</script>
+</body>
+</html>
